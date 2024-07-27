@@ -1,6 +1,5 @@
 import os
 import pygame as pg
-from pygame.sprite import _Group
 
 if not pg.font:
     print('Warning, fonts disabled')
@@ -13,12 +12,12 @@ data_dir = os.path.join(main_dir, 'data')
 def load_image(name, colorkey=None, scale=1):
     fullname = os.path.join(data_dir, name)
     image = pg.image.load(fullname)
+    image = image.convert()
 
     size = image.get_size()
     size = (size[0] * scale, size[1] * scale)
     image = pg.transform.scale(image, size)
-
-    image = image.convert()
+    
     if colorkey is not None:
         if colorkey == -1:
             colorkey = image.get_at((0, 0))
@@ -89,4 +88,46 @@ class Chimp(pg.sprite.Sprite):
                 self.image = pg.transform.flip(self.image, True, False)
         self.rect = newpos
 
-    
+    def _spin(self):
+        center =self.rect.center
+        self.dizzy = self.dizzy + 12
+        if self.dizzy >= 360:
+            self.dizzy = False
+            self.image = self.original
+        else:
+            rotate = pg.transform.rotate
+            self.image = rotate(self.original, self.dizzy)
+        self.rect = self.image.get_rect(center=center)
+
+    def punch(self):
+        if not self.dizzy:
+            self.dizzy = True
+            self.original = self.image
+
+def main():
+    pg.init()
+    screen = pg.display.set_mode((1280, 480), pg.SCALED)
+    pg.display.set_caption('Monkey Fever')
+    pg.mouse.set_visible(False)
+
+    background = pg.Surface(screen.get_size())
+    background = background.convert()
+    background.fill((170, 238, 187))
+
+    screen.blit(background, (0, 0))
+    pg.display.flip()
+
+    whiff_sound = load_sound('whiff.wav')
+    punch_sound = load_sound('punch.wav')
+
+    chimp = Chimp()
+    fist = Fist()
+    allsprites = pg.sprite.RenderPlain((chimp, fist))
+    clock = pg.time.Clock()
+
+    going = True
+    while going:
+        clock.tick(60)
+
+
+main()
