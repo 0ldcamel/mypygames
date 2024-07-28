@@ -3,8 +3,8 @@ import pygame, sys, time
 
 pygame.init()
 
-soundObj = pygame.mixer.Sound('beeps.wav')
-for i in range(3):
-    soundObj.play()
+music_obj = pygame.mixer.music.load('ambient.mp3')
+pygame.mixer.music.play(-1, 0.0)
+for i in range(60):
+    print(i)
     time.sleep(1)
-    soundObj.stop()
